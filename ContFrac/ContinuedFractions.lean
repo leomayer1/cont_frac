@@ -57,7 +57,39 @@ lemma q_one : q a 1 = a 1 := rfl
 
 end basics
 
-lemma conv_eq_p_div_q (i : ℕ) : ∀ (a : ContFrac), a i ≠ 0 → conv a i = (p a i : ℚ) / q a i := sorry
+lemma conv_eq_p_div_q (i : ℕ) : ∀ (a : ContFrac), a i ≠ 0 → conv a i = (p a i : ℚ) / q a i := by
+  --strong induction on i
+  induction' i using Nat.strong_induction_on with i ih
+  intro a hi
+  cases' i with i
+  --case i = 0
+  . simp [p, q]; rfl
+  cases' i with i
+  --case i = 1
+  . simp [p, q]
+    show (a 0 : ℚ) + 1/(a 1) = _
+    field_simp
+  have H : a (i + 1) + (1 : ℚ)/a (i + 2) ≠ 0 → conv a (i + 2) = p a (i + 2)/ q a (i + 2)
+  . intro h
+    rw [conv, list_of_CF, list_of_CF]
+    sorry
+  by_cases H1 : a (i + 1) = 0
+  by_cases H0 : a i = 0
+  --case [..., 0,0, a_{i+2}]
+  . have Hp : p a (i + 2) = p a i
+    . sorry
+    have Hq : q a (i + 2) = q a i
+    . sorry
+    rw [Hp, Hq]
+    sorry
+  --case [..., a_i, 0, a_{i+2}]
+  . apply H
+    simp [H1, hi]
+  --case [..., a_{i-1}, a_{i+2}]
+  . apply H
+    field_simp
+    norm_cast
+    simp [H1]
 
 
 --TODO: define the sequence [1,0,1,1,2,1,1,4,1,1,6,1,...] for e
