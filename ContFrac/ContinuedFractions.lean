@@ -14,38 +14,51 @@ Step 1: continued fractions
 def ContFrac := ℕ → ℕ
 
 --i-th convergent, as a list
-def list_of_CF (a : ContFrac) : ℕ → List ℕ
+def list_of_CF (a : ContFrac) : ℕ → List ℚ
   | 0 => [a 0]
-  | (n+1) => (list_of_CF a n) ++ [a (n+1)]
+  | (n+1) => (list_of_CF a n) ++ [(a (n+1) : ℚ)]
 
 --from a finite continued fraction to a rational
-def conv_of_list : List ℕ → ℚ
+def conv_of_list : List ℚ → ℚ
 | [] => 0
 | [n] => n
 | (n :: l) => n + 1/(conv_of_list l)
 
+lemma conv_concat (l : List ℚ) (n₁ n₂ : ℚ) : conv_of_list (l ++ [n₁, n₂]) = conv_of_list (l ++ [n₁ + 1/n₂]) := by
+  induction l with
+  | nil => rfl
+  | cons hd tl ih => simp [conv_of_list, ih]
+
+section basics
+
 variable (a : ContFrac) (i : ℕ)
 
 def conv : ℚ := conv_of_list (list_of_CF a i)
---examples
-#eval list_of_CF (λ x => x^2) 8
-#eval (conv (λ _ => 1) 11)
 
-def p : ℤ := (conv a i).num
-def q : ℕ := (conv a i).den
+def p (a : ContFrac) : ℕ → ℕ
+| 0 => a 0
+| 1 => (a 0)*(a 1) + 1
+| (n + 2) => (a (n + 2))*(p a (n + 1)) + p a n
 
---Write the i-th convergent as p_i/q_i.
---Then there's a recurrence relation:
--- p_n = a_n p_(n-1) + p_(n-1)
--- q_n = a_n q_(n-1) + q_(n-2)
+def q (a : ContFrac) : ℕ → ℕ
+| 0 => 1
+| 1 => a 1
+| (n + 2) => (a (n + 2))*(q a (n + 1)) + q a n
+
+
 lemma conv_rec : p a (i+2) = (a (i+2))*(p a (i+1)) + p a (i)
-  ∧ q a (i+2) = (a (i+2))*(q a (i+1)) + q a (i) := sorry
+  ∧ q a (i+2) = (a (i+2))*(q a (i+1)) + q a (i) := ⟨rfl, rfl⟩
 
 lemma p_zero : p a 0 = a 0 := rfl
-lemma p_one : p a 1 = (a 0)*(a 1) + 1 := sorry
+lemma p_one : p a 1 = (a 0)*(a 1) + 1 := rfl
 
 lemma q_zero : q a 0 = 1 := rfl
-lemma q_one : q a 1 = a 1 := sorry
+lemma q_one : q a 1 = a 1 := rfl
+
+end basics
+
+lemma conv_eq_p_div_q (i : ℕ) : ∀ (a : ContFrac), a i ≠ 0 → conv a i = (p a i : ℚ) / q a i := sorry
+
 
 --TODO: define the sequence [1,0,1,1,2,1,1,4,1,1,6,1,...] for e
 def e_seq : ℕ → ℕ := sorry
