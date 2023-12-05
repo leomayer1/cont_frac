@@ -272,7 +272,6 @@ lemma B_rec_help (n: ℕ): B (n + 1) + 2*(n+1)*(A (n + 1)) - C n = 0:= by
   rw[A, B, C]
   sorry
 
-lemma B_rec (n : ℕ) : B (n+1) = -2*(n+1)*(A (n + 1)) + (C n) := sorry
 
 lemma B_rec (n : ℕ) : B (n+1) = -2*(n+1)*(A (n + 1)) + (C n) := by
   linarith [B_rec_help n]
