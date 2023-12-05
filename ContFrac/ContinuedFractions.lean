@@ -123,28 +123,188 @@ example (a b : ℝ) : (∫ x in a..b, exp x) = exp b - exp a := integral_exp
 
 #check integral_mul_deriv_eq_deriv_mul
 
-example (a b : ℝ) : (∫ x in a..b, x*(exp x)) = (b*(exp b) - exp b) - (a*(exp a) - exp a) := by
+theorem integration_by_parts_left (a b : ℝ) : (∫ x in a..b, x*(exp x)) = (b*(exp b) - exp b) - (a*(exp a) - exp a) := by
   rw [integral_mul_deriv_eq_deriv_mul (v := exp) (u' := 1)]
   simp [one_mul]
   ring
-  sorry
-  sorry
-  sorry
-  sorry
+  . exact fun x _ => hasDerivAt_id' x
+  . exact fun x _ => hasDerivAt_exp x
+  . apply Continuous.intervalIntegrable
+    exact continuous_one
+  . apply Continuous.intervalIntegrable
+    exact continuous_exp
 
 --magical integrals
-noncomputable def A (n : ℕ) := ∫ x in (0 : ℝ)..1, (exp x)*x^n*(x-1)^n/n.factorial
-noncomputable def B (n : ℕ) := ∫ x in (0 : ℝ)..1, (exp x)*x^(n+1)*(x-1)^n/n.factorial
-noncomputable def C (n : ℕ) := ∫ x in (0 : ℝ)..1, (exp x)*x^n*(x-1)^(n+1)/n.factorial
+noncomputable def A (n : ℕ) := ∫ x in (0 : ℝ)..1, x^n*(x-1)^n/n.factorial * (exp x)
+noncomputable def B (n : ℕ) := ∫ x in (0 : ℝ)..1, x^(n+1)*(x-1)^n/n.factorial * (exp x)
+noncomputable def C (n : ℕ) := ∫ x in (0 : ℝ)..1, x^n*(x-1)^(n+1)/n.factorial * (exp x)
+
+noncomputable def e := Real.exp 1
 
 --facts about these integrals
-lemma A0 : A 0 = e - 1 := sorry
-lemma B0 : B 0 = 1 := sorry
-lemma C0 : C 0 = 2 - e := sorry
+lemma A0 : A 0 = e - 1 := by
+  rw [A]
+  simp
+  rfl
 
-lemma A_rec (n : ℕ) : A (n+1) = - B n - C n := sorry
+lemma B0 : B 0 = 1 := by
+  rw[B]
+  simp
+  rw [integration_by_parts_left 0 1]
+  ring_nf
+  simp
+
+lemma C0 : C 0 = 2 - e := by
+  rw[C]
+  simp
+  have H : ∫ (x : ℝ) in (0: ℝ)..1, (x - 1) * Real.exp x = (∫ (x : ℝ) in (0: ℝ)..1, x * Real.exp x)
+            - ∫ (x : ℝ) in (0: ℝ)..1, Real.exp x
+  . rw [←integral_sub]
+    congr
+    funext
+    ring
+    . apply Continuous.intervalIntegrable
+      . apply Continuous.mul
+        . exact continuous_id
+        . exact continuous_exp
+    . apply Continuous.intervalIntegrable
+      . apply continuous_exp
+  rw[H]
+  rw [integration_by_parts_left 0 1]
+  simp
+  rw[e]
+  ring
+
+lemma A_rec_help(n : ℕ) : A (n+1) + B n + C n = 0 := by
+  rw[A, B, C]
+  rw[← integral_add]
+  rw[← integral_add]
+  let f: ℝ → ℝ := λ x => x^(n+1)*(x-1)^(n+1)* e^x/(n+1).factorial
+  convert integral_deriv_eq_sub' f _ _ _
+  simp
+  sorry
+  --apply DifferentiableAt.mul
+  sorry
+  apply ContinuousOn.add
+  apply ContinuousOn.add
+  apply ContinuousOn.mul
+  apply ContinuousOn.mul
+  apply ContinuousOn.mul
+  apply continuousOn_pow
+  apply ContinuousOn.pow
+  apply ContinuousOn.sub
+  apply continuousOn_id
+  apply continuousOn_const
+  apply continuousOn_const
+  apply ContinuousOn.exp
+  apply continuousOn_id
+  apply ContinuousOn.mul
+  apply ContinuousOn.mul
+  apply ContinuousOn.mul
+  apply continuousOn_pow
+  apply ContinuousOn.pow
+  apply ContinuousOn.sub
+  apply continuousOn_id
+  apply continuousOn_const
+  apply continuousOn_const
+  apply ContinuousOn.exp
+  apply continuousOn_id
+  apply ContinuousOn.mul
+  apply ContinuousOn.mul
+  apply ContinuousOn.mul
+  apply continuousOn_pow
+  apply ContinuousOn.pow
+  apply ContinuousOn.sub
+  apply continuousOn_id
+  apply continuousOn_const
+  apply continuousOn_const
+  apply ContinuousOn.exp
+  apply continuousOn_id
+  . apply Continuous.intervalIntegrable
+    apply Continuous.add
+    apply Continuous.mul
+    apply Continuous.mul
+    apply Continuous.mul
+    apply continuous_pow
+    apply Continuous.pow
+    apply Continuous.sub
+    apply continuous_id
+    apply continuous_const
+    apply continuous_const
+    apply continuous_exp
+    apply Continuous.mul
+    apply Continuous.mul
+    apply Continuous.mul
+    apply continuous_pow
+    apply Continuous.pow
+    apply Continuous.sub
+    apply continuous_id
+    apply continuous_const
+    apply continuous_const
+    apply continuous_exp
+  . apply Continuous.intervalIntegrable
+    apply Continuous.mul
+    apply Continuous.mul
+    apply Continuous.mul
+    apply continuous_pow
+    apply Continuous.pow
+    apply Continuous.sub
+    apply continuous_id
+    apply continuous_one
+    apply continuous_const
+    apply continuous_exp
+  . apply Continuous.intervalIntegrable
+    apply Continuous.mul
+    apply Continuous.mul
+    apply Continuous.mul
+    apply continuous_pow
+    apply Continuous.pow
+    apply Continuous.sub
+    apply continuous_id
+    apply continuous_one
+    apply continuous_const
+    apply continuous_exp
+
+lemma A_rec (n : ℕ) : A (n+1) = - B n - C n := by
+  linarith [A_rec_help n]
+
+lemma B_rec_help (n: ℕ): B (n + 1) + 2*(n+1)*(A (n + 1)) - C n = 0:= by
+  rw[A, B, C]
+  sorry
+
 lemma B_rec (n : ℕ) : B (n+1) = -2*(n+1)*(A (n + 1)) + (C n) := sorry
-lemma C_rec (n : ℕ) : C n = B n - A n := sorry
+
+lemma B_rec (n : ℕ) : B (n+1) = -2*(n+1)*(A (n + 1)) + (C n) := by
+  linarith [B_rec_help n]
+
+lemma C_rec (n : ℕ) : C n = B n - A n := by
+  rw[C, A, B]
+  rw[←integral_sub _ _]
+  congr
+  funext
+  ring
+  . apply Continuous.intervalIntegrable
+    . apply Continuous.mul
+      . apply Continuous.mul
+        apply Continuous.mul
+        apply continuous_pow
+        apply Continuous.pow
+        apply Continuous.sub
+        apply continuous_id
+        apply continuous_one
+        apply continuous_const
+      . exact continuous_exp
+  . apply Continuous.intervalIntegrable
+    . apply Continuous.mul
+      apply Continuous.mul
+      apply Continuous.mul
+      apply continuous_pow
+      apply Continuous.pow
+      apply Continuous.sub
+      apply continuous_id
+      apply continuous_one
+      apply continuous_const
+      apply continuous_exp
 
 lemma big_rec (n : ℕ) : A n = (Q (3*n))*e - P (3*n) ∧ B n = (P (3*n+1))*e - (Q (3*n+1))*e
                     ∧ C n = P (3*n+2) - (Q (3*n+2))*e := sorry
