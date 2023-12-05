@@ -139,7 +139,6 @@ noncomputable def A (n : ℕ) := ∫ x in (0 : ℝ)..1, x^n*(x-1)^n/n.factorial 
 noncomputable def B (n : ℕ) := ∫ x in (0 : ℝ)..1, x^(n+1)*(x-1)^n/n.factorial * (exp x)
 noncomputable def C (n : ℕ) := ∫ x in (0 : ℝ)..1, x^n*(x-1)^(n+1)/n.factorial * (exp x)
 
-noncomputable def e := Real.exp 1
 
 --facts about these integrals
 lemma A0 : A 0 = e - 1 := by
