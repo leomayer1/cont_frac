@@ -6,6 +6,7 @@ import Mathlib.MeasureTheory.Integral.IntervalIntegral
 import Mathlib.MeasureTheory.Integral.FundThmCalculus
 import Mathlib.Analysis.SpecialFunctions.Integrals
 import Mathlib.Topology.Instances.Real
+import Mathlib.Topology.Tactic
 import Mathlib.Analysis.Convolution
 
 /-
@@ -228,86 +229,9 @@ lemma A_rec_help(n : ℕ) : A (n+1) + B n + C n = 0 := by
   sorry
   --apply DifferentiableAt.mul
   sorry
-  apply ContinuousOn.add
-  apply ContinuousOn.add
-  apply ContinuousOn.mul
-  apply ContinuousOn.mul
-  apply ContinuousOn.mul
-  apply continuousOn_pow
-  apply ContinuousOn.pow
-  apply ContinuousOn.sub
-  apply continuousOn_id
-  apply continuousOn_const
-  apply continuousOn_const
-  apply ContinuousOn.exp
-  apply continuousOn_id
-  apply ContinuousOn.mul
-  apply ContinuousOn.mul
-  apply ContinuousOn.mul
-  apply continuousOn_pow
-  apply ContinuousOn.pow
-  apply ContinuousOn.sub
-  apply continuousOn_id
-  apply continuousOn_const
-  apply continuousOn_const
-  apply ContinuousOn.exp
-  apply continuousOn_id
-  apply ContinuousOn.mul
-  apply ContinuousOn.mul
-  apply ContinuousOn.mul
-  apply continuousOn_pow
-  apply ContinuousOn.pow
-  apply ContinuousOn.sub
-  apply continuousOn_id
-  apply continuousOn_const
-  apply continuousOn_const
-  apply ContinuousOn.exp
-  apply continuousOn_id
-  . apply Continuous.intervalIntegrable
-    apply Continuous.add
-    apply Continuous.mul
-    apply Continuous.mul
-    apply Continuous.mul
-    apply continuous_pow
-    apply Continuous.pow
-    apply Continuous.sub
-    apply continuous_id
-    apply continuous_const
-    apply continuous_const
-    apply continuous_exp
-    apply Continuous.mul
-    apply Continuous.mul
-    apply Continuous.mul
-    apply continuous_pow
-    apply Continuous.pow
-    apply Continuous.sub
-    apply continuous_id
-    apply continuous_const
-    apply continuous_const
-    apply continuous_exp
-  . apply Continuous.intervalIntegrable
-    apply Continuous.mul
-    apply Continuous.mul
-    apply Continuous.mul
-    apply continuous_pow
-    apply Continuous.pow
-    apply Continuous.sub
-    apply continuous_id
-    apply continuous_one
-    apply continuous_const
-    apply continuous_exp
-  . apply Continuous.intervalIntegrable
-    apply Continuous.mul
-    apply Continuous.mul
-    apply Continuous.mul
-    apply continuous_pow
-    apply Continuous.pow
-    apply Continuous.sub
-    apply continuous_id
-    apply continuous_one
-    apply continuous_const
-    apply continuous_exp
   sorry
+  repeat' apply Continuous.intervalIntegrable
+  repeat' continuity
 
 lemma A_rec (n : ℕ) : A (n+1) = - B n - C n := by
   linarith [A_rec_help n]
@@ -326,28 +250,8 @@ lemma C_rec (n : ℕ) : C n = B n - A n := by
   congr
   funext
   ring
-  . apply Continuous.intervalIntegrable
-    . apply Continuous.mul
-      . apply Continuous.mul
-        apply Continuous.mul
-        apply continuous_pow
-        apply Continuous.pow
-        apply Continuous.sub
-        apply continuous_id
-        apply continuous_one
-        apply continuous_const
-      . exact continuous_exp
-  . apply Continuous.intervalIntegrable
-    . apply Continuous.mul
-      apply Continuous.mul
-      apply Continuous.mul
-      apply continuous_pow
-      apply Continuous.pow
-      apply Continuous.sub
-      apply continuous_id
-      apply continuous_one
-      apply continuous_const
-      apply continuous_exp
+  repeat' apply Continuous.intervalIntegrable
+  repeat' continuity
 
 lemma big_rec (n : ℕ) : A n = (Q (3*n))*e - P (3*n) ∧ B n = (P (3*n+1))*e - (Q (3*n+1))*e
                     ∧ C n = P (3*n+2) - (Q (3*n+2))*e := sorry
