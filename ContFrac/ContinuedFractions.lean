@@ -106,11 +106,17 @@ noncomputable def e := Real.exp 1
 
 
 @[simp]
-lemma e_seq_0_mod_3 (n : ℕ) : e_seq (3*n) = 1 := sorry
+lemma e_seq_0_mod_3 (n : ℕ) : e_seq (3*n) = 1 := by simp [e_seq]
 @[simp]
-lemma e_seq_1_mod_3 (n : ℕ) : e_seq (3*n + 1) = 2*n := sorry
+lemma e_seq_1_mod_3 (n : ℕ) : e_seq (3*n + 1) = 2*n := by
+  have H : (3*n + 1) % 3 = 1 := by simp [Nat.add_mod]
+  simp [e_seq, H]
+  rw [mul_comm 3, ←mul_assoc, Nat.mul_div_cancel]
+  norm_num
 @[simp]
-lemma e_seq_2_mod_3 (n : ℕ) : e_seq (3*n + 2) = 1 := sorry
+lemma e_seq_2_mod_3 (n : ℕ) : e_seq (3*n + 2) = 1 := by
+  have H : (3*n + 2) % 3 = 2 := by simp [Nat.add_mod]
+  simp [e_seq, H]
 
 
 --have a bunch of recurrence relations for the p_i and q_i
@@ -301,6 +307,7 @@ lemma A_rec_help(n : ℕ) : A (n+1) + B n + C n = 0 := by
     apply continuous_one
     apply continuous_const
     apply continuous_exp
+  sorry
 
 lemma A_rec (n : ℕ) : A (n+1) = - B n - C n := by
   linarith [A_rec_help n]
