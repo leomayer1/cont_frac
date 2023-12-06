@@ -24,6 +24,13 @@ def conv_of_list : List ℚ → ℚ
 | [n] => n
 | (n :: l) => n + 1/(conv_of_list l)
 
+@[simp]
+lemma conv_of_list_singleton (n : ℚ) : conv_of_list [n] = n := rfl
+@[simp]
+lemma conv_of_list_cons (n : ℚ) (l : List ℚ) : conv_of_list (n :: l) = n + 1/(conv_of_list l) := by
+  cases' l
+  simp; rfl; rfl
+
 lemma conv_concat (l : List ℚ) (n₁ n₂ : ℚ) : conv_of_list (l ++ [n₁, n₂]) = conv_of_list (l ++ [n₁ + 1/n₂]) := by
   induction l with
   | nil => rfl
@@ -45,9 +52,8 @@ def q (a : ContFrac) : ℕ → ℕ
 | 1 => a 1
 | (n + 2) => (a (n + 2))*(q a (n + 1)) + q a n
 
-
-lemma conv_rec : p a (i+2) = (a (i+2))*(p a (i+1)) + p a (i)
-  ∧ q a (i+2) = (a (i+2))*(q a (i+1)) + q a (i) := ⟨rfl, rfl⟩
+lemma conv_rec_p : p a (i+2) = (a (i+2))*(p a (i+1)) + p a (i) := rfl
+lemma conv_rec_q : q a (i+2) = (a (i+2))*(q a (i+1)) + q a (i) := rfl
 
 lemma p_zero : p a 0 = a 0 := rfl
 lemma p_one : p a 1 = (a 0)*(a 1) + 1 := rfl
@@ -93,20 +99,52 @@ lemma conv_eq_p_div_q (i : ℕ) : ∀ (a : ContFrac), a i ≠ 0 → conv a i = (
 
 
 --TODO: define the sequence [1,0,1,1,2,1,1,4,1,1,6,1,...] for e
-def e_seq : ℕ → ℕ := sorry
+def e_seq : ContFrac := λ x => if x % 3 = 1 then 2*(x-1)/3 else 1
 def P := p e_seq
 def Q := q e_seq
 noncomputable def e := Real.exp 1
 
 
---have a bunch of recurrence relations for the p_i and q_i
-lemma P0 (n : ℕ) : P (3*n+3) = P (3*n + 2) + P (3*n + 1) := sorry
-lemma P1 (n : ℕ) : P (3*n+4) = 2*n*(P (3*n + 3)) + P (3*n + 2) := sorry
-lemma P2 (n : ℕ) : P (3*n+2) = P (3*n + 1) + P (3*n) := sorry
+@[simp]
+lemma e_seq_0_mod_3 (n : ℕ) : e_seq (3*n) = 1 := sorry
+@[simp]
+lemma e_seq_1_mod_3 (n : ℕ) : e_seq (3*n + 1) = 2*n := sorry
+@[simp]
+lemma e_seq_2_mod_3 (n : ℕ) : e_seq (3*n + 2) = 1 := sorry
 
-lemma Q0 (n : ℕ) : Q (3*n+3) = Q (3*n + 2) + Q (3*n + 1) := sorry
-lemma Q1 (n : ℕ) : Q (3*n+4) = 2*n*(Q (3*n + 3)) + Q (3*n + 2) := sorry
-lemma Q2 (n : ℕ) : Q (3*n+2) = Q (3*n + 1) + Q (3*n) := sorry
+
+--have a bunch of recurrence relations for the p_i and q_i
+lemma P0 (n : ℕ) : P (3*n+3) = P (3*n + 2) + P (3*n + 1) := by
+  rw[P, conv_rec_p]
+  have H : 3*n + 1 + 2 = 3*(n + 1) := by simp [mul_add]
+  simp [H]
+
+lemma P1 (n : ℕ) : P (3*n+4) = (2*(n+1))*(P (3*n + 3)) + P (3*n + 2) := by
+  have H : 3*n + 4 = 3*(n + 1) + 1 := by simp[mul_add]
+  have H₁ : P (3*n + 4) = e_seq (3*n + 4)* P (3*n + 3) + P (3*n + 2) := by rw [P, conv_rec_p]
+  convert H₁ using 3
+  rw [H, e_seq_1_mod_3]
+
+lemma P2 (n : ℕ) : P (3*n+2) = P (3*n + 1) + P (3*n) := by
+  rw[P, conv_rec_p]
+  have H : 3*n + 1 + 2 = 3*(n + 1) := by simp [mul_add]
+  simp [H]
+
+lemma Q0 (n : ℕ) : Q (3*n+3) = Q (3*n + 2) + Q (3*n + 1) := by
+  rw[Q, conv_rec_q]
+  have H : 3*n + 1 + 2 = 3*(n + 1) := by simp [mul_add]
+  simp [H]
+
+lemma Q1 (n : ℕ) : Q (3*n+4) = (2*(n+1))*(Q (3*n + 3)) + Q (3*n + 2) := by
+  have H : 3*n + 4 = 3*(n + 1) + 1 := by simp[mul_add]
+  have H₁ : Q (3*n + 4) = e_seq (3*n + 4)* Q (3*n + 3) + Q (3*n + 2) := by rw [Q, conv_rec_q]
+  convert H₁ using 3
+  rw [H, e_seq_1_mod_3]
+
+lemma Q2 (n : ℕ) : Q (3*n+2) = Q (3*n + 1) + Q (3*n) := by
+  rw[Q, conv_rec_q]
+  have H : 3*n + 1 + 2 = 3*(n + 1) := by simp [mul_add]
+  simp [H]
 
 /-
 Step 2: integrals
