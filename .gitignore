@@ -1,2 +1,7 @@
 /build
 /lake-packages/*
+lake-manifest.json
+lean-toolchain
+.lake/lakefile.olean
+.lake/lakefile.olean.trace
+.lake/lakefile.olean.lock
