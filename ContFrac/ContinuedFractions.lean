@@ -267,3 +267,55 @@ lemma C_lim : Tendsto C atTop (𝓝 0) := sorry
 
 --the main theorem
 theorem e_CF : Tendsto (λ i => (conv e_seq i : ℝ)) atTop (𝓝 e) := sorry
+
+
+--a bunch of tests working with Filters
+
+--(x⁻¹) → 0 as x → ∞
+example : Tendsto (λ x : ℝ => x⁻¹) atTop (𝓝 0) := by
+  exact tendsto_inv_atTop_zero
+
+--1/x → 0 as x → ∞
+example : Tendsto (λ x : ℝ => 1/x) atTop (𝓝 0) := by
+  simp; exact tendsto_inv_atTop_zero
+
+--same thing, but now x is in ℕ
+example : Tendsto (λ x : ℕ => (x : ℝ)⁻¹) atTop (𝓝 0) := by
+  apply Tendsto.comp tendsto_inv_atTop_zero
+  apply tendsto_nat_cast_atTop_atTop
+
+example (f : ℝ → ℝ) (g : ℝ → ℝ) (H : ∀ᶠ x in atTop, f x = g x) (hf : Tendsto f atTop atTop)
+        : Tendsto g atTop atTop := by
+      exact Tendsto.congr' H hf
+
+--showing that some function which is eventually equal to 1/x goes to 0
+example : Tendsto (λ x : ℕ => if x < 10 then (x : ℝ) else (x : ℝ)⁻¹) atTop (𝓝 0) := by
+  have H : (λ x : ℕ => (x : ℝ)⁻¹) =ᶠ[atTop] (λ x => if x < 10 then (x : ℝ) else (x : ℝ)⁻¹)
+  . rw [eventuallyEq_iff_exists_mem]
+    use {x : ℕ | x ≥ 10}
+    apply And.intro
+    . simp; use 10; simp
+    . intro x (hx : x ≥ 10)
+      simp [hx]
+      have H₁ : ¬(x < 10)
+      . linarith
+      simp [H₁]
+  apply Tendsto.congr'
+  apply H
+  apply Tendsto.comp tendsto_inv_atTop_zero
+  apply tendsto_nat_cast_atTop_atTop
+
+--100/x → 0 as x → ∞
+example : Tendsto (λ x : ℝ => 100/x) atTop (𝓝 0) := by
+  have H₁ : Tendsto (λ _ : ℝ => (100 : ℝ)) atTop (𝓝 100) := tendsto_const_nhds
+  have H₂ : Tendsto (λ x : ℝ => x⁻¹) atTop (𝓝 0) := tendsto_inv_atTop_zero
+  convert Tendsto.mul H₁ H₂ using 2
+  simp
+
+--squeeze theorem
+example (f : ℝ → ℝ) (hf₁ : f ≥ 0) (hf₂ : ∀ x ≥ 0, f x ≤ x⁻¹) : Tendsto f atTop (𝓝 0) := by
+  have hg : Tendsto (λ x : ℝ => (0 : ℝ)) atTop (𝓝 0) := by simp
+  have hh : Tendsto (λ x : ℝ => x⁻¹) atTop (𝓝 0) := tendsto_inv_atTop_zero
+  apply tendsto_of_tendsto_of_tendsto_of_le_of_le' hg hh
+  simp; use 0; intro b _; apply hf₁
+  simp; use 0
