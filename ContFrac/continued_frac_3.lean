@@ -63,6 +63,10 @@ def rs (i : ℕ )(a: ContFrac ): ℕ  → ℕ × ℕ
 | 0 => (1, a i)
 | (n + 1) => ((rs i a n).snd, (rs i a n).fst * a (i - n) + (rs i a n).snd)
 
+@[simp]
+lemma rs_n_plus_1 (n : ℚ)(i : ℕ )(a: ContFrac ) : rs (n + 1) = ((rs i a n).snd, (rs i a n).fst * a (i - n) + (rs i a n).snd) := by
+  sorry
+
 #eval (rs 9 e_seq 9).fst
 --vector based on r and s
 
@@ -127,3 +131,6 @@ def sqrt_3: ContFrac := λ x => if x == 0 then 1 else if x % 2 = 1 then 1 else 2
 lemma rs_i1 (i : ℕ )(a: ContFrac ) : rs (i + 1) = Matrix.of rs i := by
   induction i
   simp
+  simp
+  rw
+  sorry
