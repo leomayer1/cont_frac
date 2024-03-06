@@ -116,7 +116,7 @@ lemma foo (a : ContFrac): mat_base a 1 0 = 0 := by
 
 --lemma: in P the second column is pn qn, which shows the construction of P makes sense
 lemma P_pn (a: ContFrac) (i: ℕ): P a (i + 1) = Matrix.of pq a i:= by
-  induction i
+  induction' i with n nls
   unfold P
   unfold pq
   simp
@@ -124,41 +124,86 @@ lemma P_pn (a: ContFrac) (i: ℕ): P a (i + 1) = Matrix.of pq a i:= by
   have h: n = 1 ∨ n = 0 := element_fin2 n
   --have isltn: n < 2
   have h': m = 1 ∨ m = 0 := element_fin2 m
+  have h1: mat_base a 1 0 = 0:= by
+    unfold mat_base
+    econstructor
+  have h2: mat_base  a 1 1 = 1 := by
+    unfold mat_base
+    econstructor
+  have h3: mat_2 a 1 1 1 = a 1 := by
+    unfold mat_2
+    econstructor
+  have h4: mat_2 a 1 1 0 = 1 := by
+    unfold mat_2
+    econstructor
+  have h5: mat_base a 0 0 = 1 := by
+    unfold mat_base
+    econstructor
+  have h6: mat_base a 0 1 = a 0:= by
+    unfold mat_base
+    econstructor
+  have h7: mat_2 a 1 0 1 = 1 := by
+    unfold mat_2
+    econstructor
+  have h8: mat_2 a 1 1 1 = a 1 := by
+    unfold mat_2
+    econstructor
+  have h9: mat_2 a 1 0 0 = 0 := by
+    unfold mat_2
+    econstructor
   rcases h with n1 | n2
   rcases h' with m1 | m2
   . rw[n1, m1, matrix_mul]
     simp[P]
-    have: mat_base a 1 0 = 0:= by
-      unfold mat_base
-      econstructor
-    rw[this]
-    simp
-    have: mat_base a 1 1 = 1:= by
-      unfold mat_base
-      econstructor
-    rw[this]
-    have: mat_2 a 1 1 1 = a 1:= by
-      unfold mat_2
-      econstructor
-    rw[this]
-    simp
+    rw[h1, h2, h3];simp
     econstructor
   . rw[n1, m2, matrix_mul]
     simp[P]
+    rw[h1, h2, h4];simp
+    econstructor
+  rcases h' with m1 | m2
+  . rw[n2, m1, matrix_mul]
+    simp[P]
+    rw[h5, h6, h7, h8];simp
+    have: 1 + a 0 * a 1 = p a 1 := by
+      unfold p
+      ring
+    rw[this]
+    econstructor
+  . rw[n2, m2, matrix_mul]
+    simp[P]
+    rw[h5, h6, h9, h4];simp
+    econstructor
+  have: P a (Nat.succ n + 1) = P a (n + 1) * Matrix.of (mat_2 a (n+2)):= rfl
+  rw[this]
+  rw[nls, matrix_mul]
+  simp
+  have: pq a n 0 0 = p a n := rfl
+  rw[this]
+  have: mat_2 a (n + 2) 0 0 = 0 := rfl
+  rw[this];simp
+  have: mat_2 a (n+2) 1 0 = 1 := rfl
+  rw[this]; simp
+  have: mat_2 a (n+2) 0 1 = 1 := rfl
+  rw[this]; simp
+  have: mat_2 a (n + 2) 1 1 = a (n + 2):=rfl
+  rw[this]
+  have: pq a (Nat.succ n) = pq a (n + 1) :=rfl
+  rw[this]
+  --unfold pq
 
 
 
-  --simp[P, pq]
-  --have: (P a 0 * Matrix.of (mat_2 a 1)) 1 1  = a 1:= by
 
-  --unfold Matrix.of mat_base *
 
-  --rcases m
-  sorry
+
+
+
+
 
 
 theorem finite_converged (a: ContFrac) (i: ℕ) (h: ∀ n ≤ i, a n > 0): conv a i = p a i / q a i := by
-  induction i
+  induction' i
   unfold conv
   unfold list_of_CF
   unfold conv_of_list
