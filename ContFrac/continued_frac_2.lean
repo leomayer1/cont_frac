@@ -122,7 +122,7 @@ lemma P_pn (a: ContFrac) (i: ℕ): P a (i + 1) = Matrix.of pq a i:= by
   simp
   funext n m
   have h: n = 1 ∨ n = 0 := element_fin2 n
-  --have isltn: n < 2
+  --base case
   have h': m = 1 ∨ m = 0 := element_fin2 m
   have h1: mat_base a 1 0 = 0:= by
     unfold mat_base
@@ -174,6 +174,7 @@ lemma P_pn (a: ContFrac) (i: ℕ): P a (i + 1) = Matrix.of pq a i:= by
     simp[P]
     rw[h5, h6, h9, h4];simp
     econstructor
+  -- inductive step
   have: P a (Nat.succ n + 1) = P a (n + 1) * Matrix.of (mat_2 a (n+2)):= rfl
   rw[this]
   rw[nls, matrix_mul]
@@ -190,13 +191,42 @@ lemma P_pn (a: ContFrac) (i: ℕ): P a (i + 1) = Matrix.of pq a i:= by
   rw[this]
   have: pq a (Nat.succ n) = pq a (n + 1) :=rfl
   rw[this]
+  have h1: pq a n 0 1 = p a (n+1) :=  rfl
+  have h2: pq a n 1 1 =  q a (n+1):= rfl
+  have h3: pq a n 1 0 = q a n := rfl
+  rw[h1, h2, h3]
+  unfold pq
+  funext n' m'
+  have h: n' = 1 ∨ n' = 0 :=  element_fin2 n'
+  have h': m' = 1 ∨ m' = 0 := element_fin2 m'
+  rcases h with n1 | n2
+  rcases h' with m1 | m2
+  --case 1
+  rw[n1, m1];simp
+  have: q a (n+2) = (a (n + 2))*(q a (n + 1)) + q a n := rfl
+  rw[this]
+  have: (a (n + 2))*(q a (n + 1)) + q a n = q a n + q a (n + 1) * a (n + 2) := by ring
+  rw[this]
+  econstructor
+  -- case 2
+  rw[n1, m2]; simp
+  econstructor
+  --case 3
+  rcases h' with m1 | m2
+  rw[n2, m1]; simp
+  have: p a (n + 2) = (a (n + 2))*(p a (n + 1)) + p a n := rfl
+  rw[this]
+  have: (a (n + 2))*(p a (n + 1)) + p a n = p a n + p a (n + 1) * a (n + 2) := by ring
+  rw[this]
+  econstructor
+  --case 4
+  rw[n2, m2];simp
+  econstructor
+
+
   --unfold pq
-
-
-
-
-
-
+#eval pq e_seq 1
+#eval Matrix.of pq e_seq 1
 
 
 
