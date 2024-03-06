@@ -229,9 +229,6 @@ lemma P_pn (a: ContFrac) (i: ℕ): P a (i + 1) = Matrix.of pq a i:= by
 #eval Matrix.of pq e_seq 1
 
 
-
-
-
 theorem finite_converged (a: ContFrac) (i: ℕ) (h: ∀ n ≤ i, a n > 0): conv a i = p a i / q a i := by
   induction' i
   unfold conv
