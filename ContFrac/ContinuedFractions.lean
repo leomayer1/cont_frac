@@ -260,6 +260,38 @@ Step 3: putting it all together
 -/
 open Filter Topology
 
+lemma test (f : ℝ → ℝ) (a b : ℝ) : |∫ (x : ℝ) in (a : ℝ)..b, f x| ≤ ∫ (x : ℝ) in (a : ℝ)..b, |f x| := by
+  refine abs_integral_le_integral_abs ?hab
+
+lemma int_zero : ∫ (_ : ℝ) in (0 : ℝ)..1, (0 : ℝ) = 0 := by simp
+lemma int_const (a : ℝ) : ∫ (_ : ℝ) in (0 : ℝ)..1, (a : ℝ) = a := by simp
+
+lemma A_bound (n : ℕ) : |A n| ≤ e/n.factorial := by
+  rw [A]
+  have H : |∫ (x : ℝ) in (0:ℝ)..1, x ^ n * (x - 1) ^ n / ↑(Nat.factorial n) * rexp x| ≤ _
+  . apply abs_integral_le_integral_abs
+    simp
+  apply le_trans H
+  have H₂ : ∫ (x : ℝ) in (0:ℝ)..1, e / Nat.factorial n = e / Nat.factorial n
+  . simp
+  rw [← H₂]
+  apply integral_mono_on
+  . simp
+  . apply Continuous.intervalIntegrable; continuity
+  . apply Continuous.intervalIntegrable; continuity
+  rintro x ⟨hx₁, hx₂⟩
+  rw [abs_mul, abs_div]
+  field_simp
+  rw [mul_div_assoc]
+  calc |x ^ n * (x - 1) ^ n| * (rexp x / ↑(Nat.factorial n)) ≤ 1 * (rexp x / ↑(Nat.factorial n)) := by
+        apply mul_le_mul_of_nonneg_right
+        . rw [abs_mul, abs_pow]
+          sorry
+        . apply div_nonneg
+          . apply exp_nonneg
+          . apply Nat.cast_nonneg
+    _ ≤ rexp 1 / n.factorial := sorry
+
 --limits of the integrals
 lemma A_lim : Tendsto A atTop (𝓝 0) := sorry
 lemma B_lim : Tendsto B atTop (𝓝 0) := sorry
