@@ -254,7 +254,8 @@ lemma C_rec (n : ℕ) : C n = B n - A n := by
   repeat' continuity
 
 lemma big_rec (n : ℕ) : A n = (Q (3*n))*e - P (3*n) ∧ B n = (P (3*n+1))*e - (Q (3*n+1))*e
-                    ∧ C n = P (3*n+2) - (Q (3*n+2))*e := sorry
+                    ∧ C n = P (3*n+2) - (Q (3*n+2))*e := by sorry
+
 /-
 Step 3: putting it all together
 -/
